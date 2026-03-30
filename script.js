@@ -185,14 +185,56 @@ function initializeMusic() {
     audioElement.loop = true;
     audioElement.volume = 0.3;
     
-    // Set music source - using wedding.mp3 file
-    audioElement.src = 'wedding.mp3';
+    // Try multiple possible paths for the music file
+    const possiblePaths = [
+        'wedding.mp3',
+        './wedding.mp3',
+        '/wedding.mp3',
+        'assets/wedding.mp3',
+        './assets/wedding.mp3'
+    ];
+    
+    // Try to load the music file
+    loadMusicFile(possiblePaths);
     
     // Music toggle button
     const musicToggle = document.getElementById('musicToggle');
     if (musicToggle) {
         musicToggle.addEventListener('click', toggleMusic);
     }
+}
+
+// Function to try loading music from different paths
+function loadMusicFile(paths) {
+    let pathIndex = 0;
+    
+    function tryNextPath() {
+        if (pathIndex >= paths.length) {
+            console.log('All music paths failed');
+            showNotification('Music file not found. Please ensure wedding.mp3 is uploaded');
+            return;
+        }
+        
+        const testAudio = new Audio();
+        testAudio.src = paths[pathIndex];
+        
+        testAudio.addEventListener('canplaythrough', function() {
+            // Found working path
+            audioElement.src = paths[pathIndex];
+            console.log('Music loaded from:', paths[pathIndex]);
+        });
+        
+        testAudio.addEventListener('error', function() {
+            console.log('Failed to load from:', paths[pathIndex]);
+            pathIndex++;
+            tryNextPath();
+        });
+        
+        // Trigger loading
+        testAudio.load();
+    }
+    
+    tryNextPath();
 }
 
 function toggleMusic() {
