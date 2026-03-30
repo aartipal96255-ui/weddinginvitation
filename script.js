@@ -18,6 +18,9 @@ function initializeApp() {
     // Initialize music
     initializeMusic();
     
+    // Try to autoplay music
+    attemptAutoplay();
+    
     // Initialize countdown if on countdown page
     if (currentPage === 'countdown') {
         startCountdown();
@@ -182,9 +185,8 @@ function initializeMusic() {
     audioElement.loop = true;
     audioElement.volume = 0.3;
     
-    // Set music source - using a placeholder wedding music URL
-    // You can replace this with your actual music file
-    audioElement.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBi6Gy/DaiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT';
+    // Set music source - using wedding.mp3 file
+    audioElement.src = 'wedding.mp3';
     
     // Music toggle button
     const musicToggle = document.getElementById('musicToggle');
@@ -196,9 +198,9 @@ function initializeMusic() {
 function toggleMusic() {
     const musicToggle = document.getElementById('musicToggle');
     
-    if (!audioElement.src || audioElement.src.includes('data:audio/wav;base64')) {
-        // If using placeholder or no music source, show message
-        showNotification('Add your wedding music file to enable background music');
+    if (!audioElement.src) {
+        // If no music source, show message
+        showNotification('Music file not found');
         return;
     }
     
@@ -231,6 +233,52 @@ function toggleMusic() {
                 }, { once: true });
             });
         }
+    }
+}
+
+// Autoplay music when website opens
+function attemptAutoplay() {
+    const musicToggle = document.getElementById('musicToggle');
+    
+    if (!audioElement.src) {
+        return;
+    }
+    
+    const playPromise = audioElement.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            // Music started successfully
+            musicToggle.textContent = '🔇';
+            musicToggle.style.background = 'rgba(128, 0, 32, 0.9)';
+            isMusicPlaying = true;
+            console.log('Music autoplay started successfully');
+        }).catch(error => {
+            // Autoplay was blocked (common in modern browsers)
+            console.log('Autoplay blocked:', error);
+            
+            // Add user interaction listener to start music
+            document.addEventListener('click', function startMusicOnInteraction() {
+                audioElement.play().then(() => {
+                    musicToggle.textContent = '🔇';
+                    musicToggle.style.background = 'rgba(128, 0, 32, 0.9)';
+                    isMusicPlaying = true;
+                    console.log('Music started after user interaction');
+                }).catch(e => console.log('Still failed to start music:', e));
+                document.removeEventListener('click', startMusicOnInteraction);
+            }, { once: true });
+            
+            // Also add touch listener for mobile
+            document.addEventListener('touchstart', function startMusicOnTouch() {
+                audioElement.play().then(() => {
+                    musicToggle.textContent = '🔇';
+                    musicToggle.style.background = 'rgba(128, 0, 32, 0.9)';
+                    isMusicPlaying = true;
+                    console.log('Music started after touch interaction');
+                }).catch(e => console.log('Still failed to start music:', e));
+                document.removeEventListener('touchstart', startMusicOnTouch);
+            }, { once: true });
+        });
     }
 }
 
