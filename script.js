@@ -187,9 +187,9 @@ function initializeMusic() {
     
     // Try multiple possible paths for the music file
     const possiblePaths = [
-        'wedding.mp3',
-        './wedding.mp3',
-        '/wedding.mp3',
+        'Wedding.mp3',
+        './Wedding.mp3',
+        '/Wedding.mp3',
         'assets/wedding.mp3',
         './assets/wedding.mp3'
     ];
