@@ -247,7 +247,7 @@ function toggleMusic() {
     }
     
     if (isMusicPlaying) {
-        audioElement.then();
+        audioElement.pause();
         musicToggle.textContent = '🎵';
         musicToggle.style.background = 'rgba(212, 175, 55, 0.9)';
         isMusicPlaying = false;
